@@ -138,7 +138,7 @@ export default function Home() {
               <Form word={word} setWord={setWord} meaning={meaning} setMeaning={setMeaning} nfsw={nfsw} setNfsw={setNfsw} type="update" onClick={handleSubmit} />
           )}
         </Box>
-        <Box>
+        {/* <Box>
           <Text size="large">Find a word</Text>
           <Input type="text" placeholder="word" />
           <Button>Find</Button>
@@ -148,7 +148,7 @@ export default function Home() {
             <Text size="small">Meaning</Text>
             <Text size="small">NFSW</Text>
           </Box>
-        </Box>
+        </Box> */}
         <Box>
           <Text size="large">All words</Text>
           {getLoading ? (
@@ -161,13 +161,15 @@ export default function Home() {
                       display: 'grid',
                       gridTemplateColumns: 'repeat(3, 1fr)',
                       gap: '1rem',
+                      marginTop: '4rem',
                     }}
                   >
                     {getData?.data.map((word: IWord) => (
-                      <Box key={word.id}>
+                      <Box css={{ width: '100%', border: '1px solid black', padding: '1rem' }} key={word.id}>
                         <Text size="medium">{word.word}</Text>
-                        <Text size="small">{word.meaning}</Text>
-                        <Text size="small">{word.nfsw ? 'NFSW' : 'SFW'}</Text>
+                        <Text size="small" italic>{word.meaning}</Text>
+                        <Text size="small" italic>{word.nfsw ? 'NFSW' : 'SFW'}</Text>
+                        <Button css={{ background: 'red', marginTop: 20 }} onClick={() => handleDelete(word.id)}>Delete</Button>
                       </Box>
                     ))}
                   </Box>
@@ -185,7 +187,6 @@ export default function Home() {
 const Container = styled('div', {
   display: 'flex',
   flexDirection: 'column',
-  height: '100vh',
   maxWidth: '1440px',
   margin: '0 auto',
   padding: '2rem',
@@ -202,15 +203,20 @@ const Text = styled('p', {
   variants: {
     size: {
       small: {
-        fontSize: '1rem',
+        fontSize: '0.8rem',
       },
       medium: {
-        fontSize: '1.25rem',
+        fontSize: '1.1rem',
       },
       large: {
         fontSize: '1.5rem',
         textDecoration: 'underline',
         textTransform: 'uppercase',
+      },
+    },
+    italic: {
+      true: {
+        fontStyle: 'italic',
       },
     },
   },
