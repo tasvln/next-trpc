@@ -114,10 +114,6 @@ export default function Home() {
       setFormType('add')
     }
   } 
-  console.log(createData)
-  console.log(updateData)
-  console.log(deleteData)
-  console.log(getData)
 
   return (
     <main>
