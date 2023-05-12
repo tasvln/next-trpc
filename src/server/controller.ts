@@ -1,5 +1,5 @@
 import { Prisma, PrismaClient } from "@prisma/client";
-import { CreateWordInput, ParamsInput, UpdateWordInput } from "./words.schema";
+import { CreateWordInput, ParamsInput, UpdateWordInput } from "./schema";
 
 
 const prisma = new PrismaClient();
@@ -14,6 +14,7 @@ export const createWord = async (input: CreateWordInput) => {
   });
   return {
     status: 200,
+    message: "Word created",
     data: word,
   }
 }; 
@@ -49,6 +50,7 @@ export const updateWord = async (id: ParamsInput, input: UpdateWordInput["body"]
   });
   return {
     status: 200,
+    message: "Word updated",
     data: word,
   };
 };
@@ -61,6 +63,7 @@ export const deleteWord = async (id: ParamsInput) => {
   });
   return {
     status: 200,
+    message: "Word deleted",
     data: word,
   };
 };

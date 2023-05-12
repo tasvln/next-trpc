@@ -1,15 +1,15 @@
 import { initTRPC } from "@trpc/server";
 import superjson from "superjson";
-import { CreateWordInput, ParamsInput, UpdateWordInput, createWordSchema, filterQuery, params, updateWordSchema } from "./words.schema";
-import { createWord, getWord, getWords, updateWord, deleteWord } from "./words.controller";
+import { CreateWordInput, ParamsInput, UpdateWordInput, createWordSchema, filterQuery, params, updateWordSchema } from "./schema";
+import { createWord, getWord, getWords, updateWord, deleteWord } from "./controller";
 
 const t = initTRPC.create({
   transformer: superjson,
 })
 
-const appRouter = t.router({
-  test: t.procedure
-    .query(() => ({ message: "It works" })),
+export const appRouter = t.router({
+  init: t.procedure
+    .query(() => ({ message: "server running" })),
   create: t.procedure
     .input(createWordSchema)
     .mutation(({ input }) => createWord(input)),
@@ -28,4 +28,4 @@ const appRouter = t.router({
     ),
 })
 
-export default appRouter;
+export type AppRouter = typeof appRouter;

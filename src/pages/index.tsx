@@ -1,8 +1,8 @@
-import Head from 'next/head'
-import Image from 'next/image'
-
-import {styled} from '@stitches/react';
+import { trpc } from '@/utils/trpc';
+import { IWord } from '@/utils/types';
+import { styled } from '@stitches/react';
 import React from 'react';
+import { toast } from 'react-toastify';
 
 type Form = {
   word: string,
@@ -32,10 +32,79 @@ export default function Home() {
   const [word, setWord] = React.useState('')
   const [meaning, setMeaning] = React.useState('')
   const [nfsw, setNfsw] = React.useState(false)
+  const [idState, setIdState] = React.useState<string>('')
   const [formType, setFormType] = React.useState<'add' | 'update'>('add')
 
-  const handleSubmit = () => {
-    console.log(word, meaning, nfsw)
+  const formState = {
+    word,
+    meaning,
+    nfsw,
+  }
+
+  const serverStats = trpc.init.useQuery()
+
+  const { isLoading: getLoading, data: getData } = trpc.getWords.useQuery()
+
+  const { isLoading: createLoading, data: createData, mutate: addWord } = trpc.create.useMutation({
+    onSuccess() {
+      toast("Word created successfully", {
+        type: "success",
+        position: "top-right",
+      });
+    },
+    onError() {
+      toast("Error creating word", {
+        type: "error",
+        position: "top-right",
+      });
+    },
+  })
+
+  const { isLoading: updateLoading, data: updateData, mutate: updateWord } = trpc.update.useMutation({
+    onSuccess() {
+      toast("Word updated successfully", {
+        type: "success",
+        position: "top-right",
+      });
+    },
+    onError() {
+      toast("Error updating word", {
+        type: "error",
+        position: "top-right",
+      });
+    }
+  })
+
+  const { isLoading: deleteLoading, data: deleteData, mutate: deleteWord } = trpc.delete.useMutation({
+    onSuccess() {
+      toast("Word deleted successfully", {
+        type: "success",
+        position: "top-right",
+      });
+    },
+    onError() {
+      toast("Error deleting word", {
+        type: "error",
+        position: "top-right",
+      });
+    }
+  })
+
+
+  const handleSubmit = (id?: string | any) => {
+    if (formType === 'add') {
+      addWord({ word: word, meaning: meaning, nfsw: nfsw })
+    }
+
+    if (formType === 'update') {
+      updateWord({ params: { wordId: id }, body: formState })
+    }
+  }
+
+  const handleDelete = (id: string) => {
+    if (window.confirm("Are you sure")) {
+      deleteWord({ wordId: id })
+    }
   }
 
   const handleFormType = () => {
@@ -45,10 +114,17 @@ export default function Home() {
       setFormType('add')
     }
   } 
+  console.log(createData)
+  console.log(updateData)
+  console.log(deleteData)
+  console.log(getData)
 
   return (
     <main>
       <Container>
+        <Box css={{ position: 'absolute', bottom: 0, right: 0, margin: 40 }}>
+          {serverStats.data?.message}...
+        </Box>
         <Box>
           <Button onClick={handleFormType} css={{ background: formType === 'add' ? 'red' : 'white', color: formType === 'add' ? 'white' : 'black' }}>
             Add a word
@@ -75,19 +151,31 @@ export default function Home() {
         </Box>
         <Box>
           <Text size="large">All words</Text>
-          <Box
-            css={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(3, 1fr)',
-              gap: '1rem',
-            }}
-          >
-            <Box>
-              <Text size="medium">Word</Text>
-              <Text size="small">Meaning</Text>
-              <Text size="small">NFSW</Text>
-            </Box>
-          </Box>
+          {getLoading ? (
+              <Text>Loading...</Text>
+            ) : (
+              <>
+                {getData?.data.length !== 0 ? (
+                  <Box
+                    css={{
+                      display: 'grid',
+                      gridTemplateColumns: 'repeat(3, 1fr)',
+                      gap: '1rem',
+                    }}
+                  >
+                    {getData?.data.map((word: IWord) => (
+                      <Box key={word.id}>
+                        <Text size="medium">{word.word}</Text>
+                        <Text size="small">{word.meaning}</Text>
+                        <Text size="small">{word.nfsw ? 'NFSW' : 'SFW'}</Text>
+                      </Box>
+                    ))}
+                  </Box>
+                ) : (
+                  <Text size="small">*No words found*</Text>
+                )}
+              </>
+          )}
         </Box>
       </Container>
     </main>
@@ -101,6 +189,7 @@ const Container = styled('div', {
   maxWidth: '1440px',
   margin: '0 auto',
   padding: '2rem',
+  position: 'relative',
 })
 
 const Box = styled('div', {
