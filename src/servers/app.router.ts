@@ -8,6 +8,8 @@ const t = initTRPC.create({
 })
 
 const appRouter = t.router({
+  test: t.procedure
+    .query(() => ({ message: "It works" })),
   create: t.procedure
     .input(createWordSchema)
     .mutation(({ input }) => createWord(input)),
